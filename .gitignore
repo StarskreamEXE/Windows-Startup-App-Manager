@@ -1,0 +1,21 @@
+# runtime output (created by the app / installer)
+logs/
+backups/
+reports/
+exports/
+*.log
+*.jsonl
+
+# build output (Install.ps1 rebuilds it; build\app.ico is committed)
+StartupManager.exe
+Windows-Startup-App-Manager-*.exe
+Windows-Startup-App-Manager-*.zip
+*.pdb
+
+# local-only
+_deprecated/
+orchestration/
+.claude/
+*.swp
+Thumbs.db
+desktop.ini

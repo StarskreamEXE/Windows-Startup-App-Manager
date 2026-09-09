@@ -1,0 +1,15 @@
+# Windows-native project: keep CRLF for scripts Windows tools consume
+*.ps1  text eol=crlf
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.cs   text eol=crlf
+*.manifest text eol=crlf
+*.md   text eol=lf
+*.css  text eol=lf
+*.html text eol=lf
+
+# binaries
+*.ttf  binary
+*.png  binary
+*.ico  binary
+*.exe  binary

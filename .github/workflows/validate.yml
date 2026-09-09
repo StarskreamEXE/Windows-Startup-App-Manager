@@ -1,0 +1,45 @@
+name: Validate and package
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-powershell:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Install pinned test framework
+        run: |
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser
+          Install-Module Pester -RequiredVersion 3.4.0 -Scope CurrentUser -Force -SkipPublisherCheck
+      - name: Tests and parse validation
+        run: ./tests/Run-Tests.ps1
+      - name: Build release ZIP and checksum
+        run: ./build/Build-Release.ps1 -OutputDirectory "$env:RUNNER_TEMP\startup-manager-release"
+      - name: Preserve validated release artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: Windows-Startup-App-Manager
+          path: |
+            ${{ runner.temp }}/startup-manager-release/*.zip
+            ${{ runner.temp }}/startup-manager-release/*-Setup-*.exe
+            ${{ runner.temp }}/startup-manager-release/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
