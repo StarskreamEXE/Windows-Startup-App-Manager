@@ -3,7 +3,7 @@ $script:PackageRoot = Split-Path -Parent $PSScriptRoot
 Describe 'Release packaging' {
     It 'has a versioned explicit allowlist without private runtime material' {
         $manifest = Import-PowerShellDataFile (Join-Path $script:PackageRoot 'build\Release-Files.psd1')
-        $manifest.Version | Should Be '2.1.0'
+        $manifest.Version | Should Be '2.1.1'
         ($manifest.Files -contains 'LICENSE') | Should Be $true
         ($manifest.Files -contains 'THIRD-PARTY-NOTICES.md') | Should Be $true
         ($manifest.Files -contains 'fonts/OFL-Inter.txt') | Should Be $true
@@ -29,16 +29,32 @@ Describe 'Release packaging' {
         Test-Path (Join-Path $destination 'CLAUDE.md') | Should Be $false
         Test-Path (Join-Path $destination 'docs\images\main-window.png') | Should Be $false
         $launcher = Join-Path $destination 'StartupManager.exe'
-        (Get-Item $launcher).VersionInfo.FileVersion | Should Be '2.1.0.0'
+        (Get-Item $launcher).VersionInfo.FileVersion | Should Be '2.1.1.0'
         Set-Content -LiteralPath $launcher -Value 'stale launcher'
         Set-Content -LiteralPath (Join-Path $destination 'logs\keep.txt') -Value 'preserve user data'
         & (Join-Path $script:PackageRoot 'Install.ps1') -Dest $destination -Portable -NoShortcuts
-        (Get-Item $launcher).VersionInfo.FileVersion | Should Be '2.1.0.0'
+        (Get-Item $launcher).VersionInfo.FileVersion | Should Be '2.1.1.0'
         Get-Content -LiteralPath (Join-Path $destination 'logs\keep.txt') | Should Be 'preserve user data'
         Assert-MockCalled New-ItemProperty -Times 0 -Exactly -Scope It
         Assert-MockCalled Set-ItemProperty -Times 0 -Exactly -Scope It
         Assert-MockCalled Start-Process -Times 0 -Exactly -Scope It
         Assert-MockCalled New-Item -Times 0 -Exactly -Scope It -ParameterFilter { $Path -like 'HK*:*' }
+    }
+
+    It 'installs from bracketed source paths into bracketed destinations' {
+        $source = Join-Path $TestDrive '[download]'
+        $destination = Join-Path $TestDrive '[installed]'
+        $manifest = Import-PowerShellDataFile (Join-Path $script:PackageRoot 'build\Release-Files.psd1')
+        foreach ($relative in $manifest.Files) {
+            $target = Join-Path $source $relative
+            New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
+            Copy-Item -LiteralPath (Join-Path $script:PackageRoot $relative) -Destination $target
+        }
+        & (Join-Path $source 'Install.ps1') -Dest $destination -Portable -NoShortcuts
+        foreach ($relative in $manifest.Files) {
+            (Get-FileHash -LiteralPath (Join-Path $destination $relative)).Hash | Should Be (Get-FileHash -LiteralPath (Join-Path $source $relative)).Hash
+        }
+        (Get-Item -LiteralPath (Join-Path $destination 'StartupManager.exe')).VersionInfo.FileVersion | Should Be '2.1.1.0'
     }
 
     It 'preserves a portable install during uninstall without touching registration' {
@@ -58,14 +74,14 @@ Describe 'Release packaging' {
     It 'builds a ZIP with notices and a matching SHA256 checksum' {
         $output = Join-Path $TestDrive 'release'
         & (Join-Path $script:PackageRoot 'build\Build-Release.ps1') -OutputDirectory $output
-        $archive = Join-Path $output 'Windows-Startup-App-Manager-2.1.0.zip'
+        $archive = Join-Path $output 'Windows-Startup-App-Manager-2.1.1.zip'
         Test-Path $archive | Should Be $true
         $checksum = Get-Content (Join-Path $output 'SHA256SUMS.txt')
-        ($checksum -contains ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant() + '  Windows-Startup-App-Manager-2.1.0.zip')) | Should Be $true
-        $setup = Join-Path $output 'Windows-Startup-App-Manager-Setup-2.1.0.exe'
+        ($checksum -contains ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant() + '  Windows-Startup-App-Manager-2.1.1.zip')) | Should Be $true
+        $setup = Join-Path $output 'Windows-Startup-App-Manager-Setup-2.1.1.exe'
         Test-Path -LiteralPath $setup | Should Be $true
-        (Get-Item -LiteralPath $setup).VersionInfo.FileVersion | Should Be '2.1.0.0'
-        ($checksum -contains ((Get-FileHash $setup -Algorithm SHA256).Hash.ToLowerInvariant() + '  Windows-Startup-App-Manager-Setup-2.1.0.exe')) | Should Be $true
+        (Get-Item -LiteralPath $setup).VersionInfo.FileVersion | Should Be '2.1.1.0'
+        ($checksum -contains ((Get-FileHash $setup -Algorithm SHA256).Hash.ToLowerInvariant() + '  Windows-Startup-App-Manager-Setup-2.1.1.exe')) | Should Be $true
         $assembly = [Reflection.Assembly]::Load([IO.File]::ReadAllBytes($setup))
         $payload = $assembly.GetManifestResourceStream('StartupManager.Payload.zip')
         $hasher = [Security.Cryptography.SHA256]::Create()

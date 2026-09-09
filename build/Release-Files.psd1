@@ -1,5 +1,5 @@
 @{
-    Version = '2.1.0'
+    Version = '2.1.1'
     Files = @(
         'Start-StartupManager.ps1', 'Launch.ps1', 'Launch.bat', 'Install.ps1', 'Install.bat', 'Uninstall.ps1',
         'README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'CONTRIBUTING.md', 'SECURITY.md', 'CHANGELOG.md',

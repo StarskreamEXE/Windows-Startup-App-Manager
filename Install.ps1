@@ -21,7 +21,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $Source  = $PSScriptRoot
-$manifest = Import-PowerShellDataFile (Join-Path $Source 'build\Release-Files.psd1')
+$manifest = Import-PowerShellDataFile -LiteralPath (Join-Path $Source 'build\Release-Files.psd1')
 $Version = $manifest.Version
 $Dest = [IO.Path]::GetFullPath($Dest)
 if ($Dest.TrimEnd('\') -eq $Source.TrimEnd('\')) { throw 'Install destination must differ from the source directory.' }
@@ -42,21 +42,21 @@ foreach ($relative in $manifest.Files) {
 
 # 1b. brand fonts (per-user, no admin) - Inter / JetBrains Mono / Press Start 2P
 $fontSrc = Join-Path $Source 'fonts'
-if (-not $Portable -and (Test-Path $fontSrc)) {
+if (-not $Portable -and (Test-Path -LiteralPath $fontSrc)) {
     Step 'Installing fonts (per-user) ...'
     Add-Type -AssemblyName System.Drawing
     $fontDir = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows\Fonts'
-    if (-not (Test-Path $fontDir)) { New-Item -ItemType Directory -Path $fontDir -Force | Out-Null }
+    if (-not (Test-Path -LiteralPath $fontDir)) { New-Item -ItemType Directory -Path $fontDir -Force | Out-Null }
     $freg = 'HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Fonts'
     if (-not (Test-Path $freg)) { New-Item -Path $freg -Force | Out-Null }
     $installed = (New-Object System.Drawing.Text.InstalledFontCollection).Families | ForEach-Object { $_.Name }
-    foreach ($f in (Get-ChildItem $fontSrc -Filter *.ttf)) {
+    foreach ($f in (Get-ChildItem -LiteralPath $fontSrc -Filter *.ttf)) {
         try {
             $pfc = New-Object System.Drawing.Text.PrivateFontCollection; $pfc.AddFontFile($f.FullName)
             $fam = $pfc.Families[0].Name
             $fontDest = Join-Path $fontDir $f.Name
-            if ((Test-Path $fontDest) -or ($installed -contains $fam -and $f.BaseName -match 'Regular$')) { continue }
-            Copy-Item $f.FullName $fontDest -Force
+            if ((Test-Path -LiteralPath $fontDest) -or ($installed -contains $fam -and $f.BaseName -match 'Regular$')) { continue }
+            Copy-Item -LiteralPath $f.FullName -Destination $fontDest -Force
             $style = switch -Regex ($f.BaseName) { 'BoldItalic$' {' Bold Italic'} 'Bold$' {' Bold'} 'Italic$' {' Italic'} default {''} }
             New-ItemProperty -Path $freg -Name ("$fam$style (TrueType)") -Value $fontDest -PropertyType String -Force | Out-Null
             Write-Host ("    " + $fam + $style)
@@ -67,12 +67,12 @@ if (-not $Portable -and (Test-Path $fontSrc)) {
 
 # 2. copy
 Step 'Copying files ...'
-if (-not (Test-Path $Dest)) { New-Item -ItemType Directory -Path $Dest -Force | Out-Null }
+if (-not (Test-Path -LiteralPath $Dest)) { New-Item -ItemType Directory -Path $Dest -Force | Out-Null }
 $items = $manifest.Files
 foreach ($i in $items) {
     $from = Join-Path $Source $i
     $to = Join-Path $Dest $i
-    if (Test-Path -PathType Container $from) {
+    if (Test-Path -LiteralPath $from -PathType Container) {
         # overwrite in place (never delete): copy every file, create folders as needed
         Get-ChildItem -LiteralPath $from -Recurse -File | ForEach-Object {
             $rel    = $_.FullName.Substring($from.Length).TrimStart('\')
@@ -84,14 +84,14 @@ foreach ($i in $items) {
     } else {
         $targetDir = Split-Path -Parent $to
         if (-not (Test-Path -LiteralPath $targetDir)) { New-Item -ItemType Directory -Path $targetDir -Force | Out-Null }
-        Copy-Item -Force $from $to
+        Copy-Item -LiteralPath $from -Destination $to -Force
     }
 }
 Step 'Rebuilding StartupManager.exe ...'
 & (Join-Path $Dest 'build\Build-Exe.ps1') -OutFile (Join-Path $Dest 'StartupManager.exe')
 foreach ($d in @('logs', 'backups', 'reports', 'exports')) {
     $p = Join-Path $Dest $d
-    if (-not (Test-Path $p)) { New-Item -ItemType Directory -Path $p -Force | Out-Null }
+    if (-not (Test-Path -LiteralPath $p)) { New-Item -ItemType Directory -Path $p -Force | Out-Null }
 }
 
 # 3. shortcuts

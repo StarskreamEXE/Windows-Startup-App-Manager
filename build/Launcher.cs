@@ -10,8 +10,8 @@ using System.Reflection;
 [assembly: AssemblyTitle("Windows Startup App Manager")]
 [assembly: AssemblyProduct("STARTUP.manager")]
 [assembly: AssemblyCompany("skreamb0t")]
-[assembly: AssemblyVersion("2.1.0.0")]
-[assembly: AssemblyFileVersion("2.1.0.0")]
+[assembly: AssemblyVersion("2.1.1.0")]
+[assembly: AssemblyFileVersion("2.1.1.0")]
 
 static class Program
 {

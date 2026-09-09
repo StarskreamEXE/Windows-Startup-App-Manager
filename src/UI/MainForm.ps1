@@ -151,9 +151,10 @@ function Test-SMMainVisible { param($E)
     if ($q -eq [string]$u.SearchPlaceholder) { $q = '' }
     if ($q.Trim().Length -gt 0) {
         $q = $q.Trim()
-        $hit = ($E.Name -like "*$q*") -or ($E.What -like "*$q*") -or ($E.Publisher -like "*$q*") -or
-               ($E.Command -like "*$q*") -or ($E.ExePath -like "*$q*") -or ($E.Category -like "*$q*") -or
-               ((@($E.Flags) -join ' ') -like "*$q*") -or ($E.Risk -like "*$q*")
+        $hit = $false
+        foreach ($value in @($E.Name, $E.What, $E.Publisher, $E.Command, $E.ExePath, $E.Category, (@($E.Flags) -join ' '), $E.Risk)) {
+            if (([string]$value).IndexOf($q, [StringComparison]::OrdinalIgnoreCase) -ge 0) { $hit = $true; break }
+        }
         if (-not $hit) { return $false }
     }
     return $true
@@ -195,28 +196,30 @@ function Update-SMMainStyles {
 function Update-SMMainGrid {
     $u = $script:SMUI
     $u.Loading = $true
-    $grid = $u.Grid
-    $sortCol = $null; $sortDir = 'None'
-    if ($grid.SortedColumn) { $sortCol = $grid.SortedColumn.Name; $sortDir = $grid.SortOrder }
-    $dt = $u.Table
-    $dt.BeginLoadData()
-    $dt.Rows.Clear()
-    $shown = 0
-    foreach ($e in @($script:SM.Inventory)) {
-        if (-not (Test-SMMainVisible $e)) { continue }
-        $boot = if ($e.BootMs -ge 0) { [int]$e.BootMs } else { [DBNull]::Value }
-        $on = if ($script:SM.Pending.Contains([string]$e.Id)) { [bool]$script:SM.Pending[[string]$e.Id].To } else { [bool]$e.Enabled }
-        [void]$dt.Rows.Add($on, (Get-SMPendingText $e.Id), [string]$e.Risk, (@($e.Flags) -join ', '), [string]$e.Name, [string]$e.What,
-            [string]$e.Publisher, [string]$e.SigStatus, $boot, [string]$e.Category, [string]$e.Command, [string]$e.ExePath, [int]$e.Id)
-        $shown++
-    }
-    $dt.EndLoadData()
-    if ($sortCol -and $sortDir -ne 'None') {
-        $dir = if ($sortDir -eq 'Ascending') { [ComponentModel.ListSortDirection]::Ascending } else { [ComponentModel.ListSortDirection]::Descending }
-        $grid.Sort($grid.Columns[$sortCol], $dir)
-    }
-    Update-SMMainStyles
-    $u.Loading = $false
+    try {
+        $grid = $u.Grid
+        $sortCol = $null; $sortDir = 'None'
+        if ($grid.SortedColumn) { $sortCol = $grid.SortedColumn.Name; $sortDir = $grid.SortOrder }
+        $dt = $u.Table
+        $dt.BeginLoadData()
+        try {
+            $dt.Rows.Clear()
+            $shown = 0
+            foreach ($e in @($script:SM.Inventory)) {
+                if (-not (Test-SMMainVisible $e)) { continue }
+                $boot = if ($e.BootMs -ge 0) { [int]$e.BootMs } else { [DBNull]::Value }
+                $on = if ($script:SM.Pending.Contains([string]$e.Id)) { [bool]$script:SM.Pending[[string]$e.Id].To } else { [bool]$e.Enabled }
+                [void]$dt.Rows.Add($on, (Get-SMPendingText $e.Id), [string]$e.Risk, (@($e.Flags) -join ', '), [string]$e.Name, [string]$e.What,
+                    [string]$e.Publisher, [string]$e.SigStatus, $boot, [string]$e.Category, [string]$e.Command, [string]$e.ExePath, [int]$e.Id)
+                $shown++
+            }
+        } finally { $dt.EndLoadData() }
+        if ($sortCol -and $sortDir -ne 'None') {
+            $dir = if ($sortDir -eq 'Ascending') { [ComponentModel.ListSortDirection]::Ascending } else { [ComponentModel.ListSortDirection]::Descending }
+            $grid.Sort($grid.Columns[$sortCol], $dir)
+        }
+        Update-SMMainStyles
+    } finally { $u.Loading = $false }
     Update-SMMainStatus $shown
 }
 

@@ -129,7 +129,7 @@ foreach ($relative in $LoadOrder) {
 # ---------------------------------------------------------------------- run
 
 $state = Initialize-SMPaths -Root $Root
-Write-SMLog -Level INFO -Message 'Startup Manager 2.1.0 starting'
+Write-SMLog -Level INFO -Message 'Startup Manager 2.1.1 starting'
 
 [System.Windows.Forms.Application]::add_ThreadException({
     param($sender, $e)

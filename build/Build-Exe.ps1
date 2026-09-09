@@ -9,12 +9,12 @@ $ErrorActionPreference = 'Stop'
 $here = $PSScriptRoot
 
 $csc = Join-Path $env:SystemRoot 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
-if (-not (Test-Path $csc)) { $csc = Join-Path $env:SystemRoot 'Microsoft.NET\Framework\v4.0.30319\csc.exe' }
-if (-not (Test-Path $csc)) { throw "csc.exe not found. .NET Framework 4.x is required (it ships with Windows)." }
+if (-not (Test-Path -LiteralPath $csc)) { $csc = Join-Path $env:SystemRoot 'Microsoft.NET\Framework\v4.0.30319\csc.exe' }
+if (-not (Test-Path -LiteralPath $csc)) { throw "csc.exe not found. .NET Framework 4.x is required (it ships with Windows)." }
 
 # icon: pull a stock icon out of shell32 so the exe is not a blank box
 $ico = Join-Path $here 'app.ico'
-if (-not (Test-Path $ico)) {
+if (-not (Test-Path -LiteralPath $ico)) {
     Add-Type -AssemblyName System.Drawing
     $src = Join-Path $env:SystemRoot 'System32\taskmgr.exe'
     $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($src)
@@ -33,4 +33,4 @@ $args = @(
 Write-Host "csc -> $OutFile"
 & $csc @args
 if ($LASTEXITCODE -ne 0) { throw "csc.exe failed with exit code $LASTEXITCODE" }
-Write-Host "Built: $OutFile ($([math]::Round((Get-Item $OutFile).Length / 1KB)) KB)"
+Write-Host "Built: $OutFile ($([math]::Round((Get-Item -LiteralPath $OutFile).Length / 1KB)) KB)"

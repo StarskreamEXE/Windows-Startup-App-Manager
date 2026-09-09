@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.1 - Release candidate fixes
+
+- Treat search input literally and restore grid state after filter failures.
+- Install correctly from source folders containing square brackets.
+- Preserve security warnings when an executable matches a known application name.
+
 ## 2.1.0 - Initial release candidate
 
 - Startup inventory across registry entries, folders, scheduled tasks, services and Store apps.

@@ -91,7 +91,7 @@ not represented in the usual Startup apps list.
 ## Install and run on Windows 10 or Windows 11
 
 **Recommended:** open [Releases](https://github.com/StarskreamEXE/Windows-Startup-App-Manager/releases),
-download **Windows-Startup-App-Manager-Setup-2.1.0.exe**, and double-click it.
+download **Windows-Startup-App-Manager-Setup-2.1.1.exe**, and double-click it.
 The self-contained installer includes the app files; no Git clone or separate download
 is required. It installs for your Windows account and launches the app. The app then asks
 for administrator approval to manage machine-wide startup entries.

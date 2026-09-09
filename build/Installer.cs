@@ -13,8 +13,8 @@ using System.Windows.Forms;
 [assembly: AssemblyTitle("Windows Startup App Manager Setup")]
 [assembly: AssemblyProduct("STARTUP.manager Setup")]
 [assembly: AssemblyCompany("skreamb0t")]
-[assembly: AssemblyVersion("2.1.0.0")]
-[assembly: AssemblyFileVersion("2.1.0.0")]
+[assembly: AssemblyVersion("2.1.1.0")]
+[assembly: AssemblyFileVersion("2.1.1.0")]
 
 namespace StartupManagerSetup
 {

@@ -57,9 +57,10 @@ function Get-SMRiskAssessment {
     # ---- risk ----
     $risk = 'Unknown'
     if ($missing) { $risk = 'Broken' }
-    elseif ($null -ne $known) { $risk = $known.Risk }
     elseif (($unsigned -or $badsig) -and $tempPath) { $risk = 'Suspicious' }
+    elseif ($null -ne $known -and $known.Risk -eq 'Critical') { $risk = 'Critical' }
     elseif ($unsigned -or $badsig) { $risk = 'Caution' }
+    elseif ($null -ne $known) { $risk = $known.Risk }
     elseif ($updater) { $risk = 'Optional' }
     elseif ($kind -eq 'Uwp') { $risk = 'Optional' }
     elseif ($isMs) { $risk = 'Caution' }
@@ -89,6 +90,7 @@ function Get-SMRiskAssessment {
         $effect = 'This startup registration will no longer launch automatically. Its application or dependent features may stop working; the impact has not been verified.'
     }
     if ($risk -eq 'Critical') { $effect = 'Review carefully before disabling this matched component. ' + $effect }
+    if ($risk -eq 'Suspicious') { $effect = 'This startup registration will no longer launch automatically. Verify the executable origin and signature before deciding what to do; a familiar name does not establish its identity or the impact of disabling it.' }
     if ($missing) { $what = "File not found or inaccessible: $file"; $effect = 'The resolved executable could not be found. Verify the path and permissions before disabling; other launch paths may still work.' }
     if ($kind -eq 'RunOnce') { $effect = 'Cannot be toggled. It runs once at next logon and removes itself.' }
     $evidence = 'Heuristic only; publisher, location and privileges do not establish a Windows dependency or prove safety.'

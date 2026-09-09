@@ -7,17 +7,17 @@ Use 64-bit Windows PowerShell 5.1 on Windows with .NET Framework 4.x and its C# 
 ```powershell
 Install-Module Pester -RequiredVersion 3.4.0 -Scope CurrentUser -Force -SkipPublisherCheck
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests\Run-Tests.ps1
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File build\Build-Release.ps1 -OutputDirectory C:\Temp\startup-manager-release-2.1.0
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File build\Build-Release.ps1 -OutputDirectory C:\Temp\startup-manager-release-2.1.1
 ```
 
-Choose an output directory that does not already exist. The build preserves its staging directory and produces `Windows-Startup-App-Manager-2.1.0.zip`, `Windows-Startup-App-Manager-Setup-2.1.0.exe`, and `SHA256SUMS.txt` covering both downloads. ZIP contents come only from `build/Release-Files.psd1`; runtime data, internal instructions, old screenshots, and Git history are not included. Add new runtime files to that manifest explicitly. The launcher is compiled from the staged source, never reused from an existing binary.
+Choose an output directory that does not already exist. The build preserves its staging directory and produces `Windows-Startup-App-Manager-2.1.1.zip`, `Windows-Startup-App-Manager-Setup-2.1.1.exe`, and `SHA256SUMS.txt` covering both downloads. ZIP contents come only from `build/Release-Files.psd1`; runtime data, internal instructions, old screenshots, and Git history are not included. Add new runtime files to that manifest explicitly. The launcher is compiled from the staged source, never reused from an existing binary.
 
 The Setup EXE is a self-contained x64 installer with that exact ZIP embedded. Double-click it to confirm installation; it needs no downloads, external package manager, or administrator access for setup. It extracts into a unique `%LOCALAPPDATA%\StartupManager\Setup\<id>` directory, runs Windows PowerShell `Install.ps1 -Launch`, reports failure/success, and retains `setup.log` and extracted source for inspection. App launch requests administrator approval separately. Close an existing app instance before upgrading. Do not publish the bare `StartupManager.exe` launcher as a standalone download: it requires its neighboring application files.
 
 To inspect the bundled payload without installing, use an extraction path that does not exist:
 
 ```powershell
-$process = Start-Process .\Windows-Startup-App-Manager-Setup-2.1.0.exe -ArgumentList '/extract-only "C:\Temp\startup-manager-inspect"' -PassThru -Wait
+$process = Start-Process .\Windows-Startup-App-Manager-Setup-2.1.1.exe -ArgumentList '/extract-only "C:\Temp\startup-manager-inspect"' -PassThru -Wait
 $process.ExitCode
 ```
 
@@ -56,8 +56,8 @@ Only Windows desktop x64 with Windows PowerShell 5.1 is the release target. Wind
 ## Verify a download
 
 ```powershell
-Get-FileHash .\Windows-Startup-App-Manager-2.1.0.zip -Algorithm SHA256
-Get-FileHash .\Windows-Startup-App-Manager-Setup-2.1.0.exe -Algorithm SHA256
+Get-FileHash .\Windows-Startup-App-Manager-2.1.1.zip -Algorithm SHA256
+Get-FileHash .\Windows-Startup-App-Manager-Setup-2.1.1.exe -Algorithm SHA256
 Get-Content .\SHA256SUMS.txt
 ```
 

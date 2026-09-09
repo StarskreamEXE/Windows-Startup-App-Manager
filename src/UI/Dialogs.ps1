@@ -288,7 +288,7 @@ function Show-SMAboutDialog {
     $f.Controls.Add($box)
     $btn = New-SMButtonRow -Form $f -Buttons @('Close')
     $btn['Close'].Add_Click({ $this.FindForm().Close() })
-    Add-SMRichHeading $box 'STARTUP.MANAGER 2.1.0  by skreamb0t'
+    Add-SMRichHeading $box 'STARTUP.MANAGER 2.1.1  by skreamb0t'
     Add-SMRichLine $box '' 'Shows everything that starts with Windows - Run keys, Startup folders, logon/boot scheduled tasks, automatic services and Store app tasks - and lets you stage, review, apply, log and undo changes.'
     Add-SMRichLine $box '' ''
     Add-SMRichLine $box '' 'Never deletes anything. Nothing is applied until you click Apply. Every change is logged.'
