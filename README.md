@@ -97,7 +97,7 @@ is required. It installs for your Windows account and launches the app. The app 
 for administrator approval to manage machine-wide startup entries.
 
 The release also includes a ZIP and **SHA256SUMS.txt** for manual extraction and checksum
-verification. Binaries are currently unsigned; verify the download source and checksum.
+verification.
 
 ### Run from ZIP or source
 

@@ -61,4 +61,4 @@ Get-FileHash .\Windows-Startup-App-Manager-Setup-2.1.1.exe -Algorithm SHA256
 Get-Content .\SHA256SUMS.txt
 ```
 
-The hashes must match. A checksum detects changed bytes; it does not establish the publisher's identity. Release binaries are currently unsigned. Code signing and a trusted signing identity require separate maintainer setup.
+The hashes must match. A checksum detects changed bytes; it does not establish the publisher's identity.

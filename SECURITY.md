@@ -16,4 +16,4 @@ This app can change startup configuration and normally runs elevated. Only run c
 
 The app is not antivirus, a malware removal tool, or a complete inventory of every Windows persistence mechanism. Startup applications may restore their own entries, and organization policy may override local settings. Do not use this app to circumvent managed-device policy.
 
-Logs, backups, saved baselines, and full reports may contain personal information. Keep them private. Review share-safe exports before posting. Unsigned release binaries may trigger Windows SmartScreen; do not disable Windows security controls to work around a warning.
+Logs, backups, saved baselines, and full reports may contain personal information. Keep them private. Review share-safe exports before posting. Do not disable Windows security controls to work around a warning.
